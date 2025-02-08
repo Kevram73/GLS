@@ -22,8 +22,8 @@ use App\Http\Controllers\NotificationController;
 |
 */
 
-Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
 Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('reset-password', [AuthController::class, 'resetPassword']);
 Route::post('otp-verify', [AuthController::class, 'otpVerify']);
