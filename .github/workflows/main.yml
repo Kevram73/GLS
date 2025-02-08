@@ -25,6 +25,6 @@ jobs:
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@4.3.2
       with:
-        server: 89.117.169.104
-        username: u340024865.api.galorelotoservices.com
-        password: fN9=3z0V6VLZ;mO$
+        server: ftp.api.galorelotoservices.com
+        username: u340024865.kevram73
+        password: Alkashi13!!!%
