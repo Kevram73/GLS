@@ -1,0 +1,1380 @@
+openapi: 3.0.3
+info:
+  title: Laravel
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost'
+paths:
+  /api/documentation:
+    get:
+      summary: 'Display Swagger API page.'
+      operationId: displaySwaggerAPIPage
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>L5 Swagger UI</title>\n    <link rel=\"stylesheet\" type=\"text/css\" href=\"http://localhost/docs/asset/swagger-ui.css?v=0755b7093afdd36d03212b65315f0209\">\n    <link rel=\"icon\" type=\"image/png\" href=\"http://localhost/docs/asset/favicon-32x32.png?v=40d4f2c38d1cd854ad463f16373cbcb6\" sizes=\"32x32\"/>\n    <link rel=\"icon\" type=\"image/png\" href=\"http://localhost/docs/asset/favicon-16x16.png?v=f0ae831196d55d8f4115b6c5e8ec5384\" sizes=\"16x16\"/>\n    <style>\n    html\n    {\n        box-sizing: border-box;\n        overflow: -moz-scrollbars-vertical;\n        overflow-y: scroll;\n    }\n    *,\n    *:before,\n    *:after\n    {\n        box-sizing: inherit;\n    }\n\n    body {\n      margin:0;\n      background: #fafafa;\n    }\n    </style>\n    </head>\n\n<body >\n<div id=\"swagger-ui\"></div>\n\n<script src=\"http://localhost/docs/asset/swagger-ui-bundle.js?v=070303e1056e80b1e8f8c0227fbb3b69\"></script>\n<script src=\"http://localhost/docs/asset/swagger-ui-standalone-preset.js?v=6b2892eb9458da5c3224817b3984d14c\"></script>\n<script>\n    window.onload = function() {\n        // Build a system\n        const ui = SwaggerUIBundle({\n            dom_id: '#swagger-ui',\n            url: \"http://localhost/docs?api-docs.json\",\n            operationsSorter: null,\n            configUrl: null,\n            validatorUrl: null,\n            oauth2RedirectUrl: \"http://localhost/api/oauth2-callback\",\n\n            requestInterceptor: function(request) {\n                request.headers['X-CSRF-TOKEN'] = '';\n                return request;\n            },\n\n            presets: [\n                SwaggerUIBundle.presets.apis,\n                SwaggerUIStandalonePreset\n            ],\n\n            plugins: [\n                SwaggerUIBundle.plugins.DownloadUrl\n            ],\n\n            layout: \"StandaloneLayout\",\n            docExpansion : \"none\",\n            deepLinking: true,\n            filter: true,\n            persistAuthorization: \"false\",\n\n        })\n\n        window.ui = ui\n\n            }\n</script>\n</body>\n</html>\n"
+      tags:
+        - Endpoints
+      security: []
+  /api/oauth2-callback:
+    get:
+      summary: 'Display Oauth2 callback pages.'
+      operationId: displayOauth2CallbackPages
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "<!doctype html>\n<html lang=\"en-US\">\n<head>\n    <title>Swagger UI: OAuth2 Redirect</title>\n</head>\n<body>\n<script>\n    'use strict';\n    function run () {\n        var oauth2 = window.opener.swaggerUIRedirectOauth2;\n        var sentState = oauth2.state;\n        var redirectUrl = oauth2.redirectUrl;\n        var isValid, qp, arr;\n\n        if (/code|token|error/.test(window.location.hash)) {\n            qp = window.location.hash.substring(1).replace('?', '&');\n        } else {\n            qp = location.search.substring(1);\n        }\n\n        arr = qp.split(\"&\");\n        arr.forEach(function (v,i,_arr) { _arr[i] = '\"' + v.replace('=', '\":\"') + '\"';});\n        qp = qp ? JSON.parse('{' + arr.join() + '}',\n                function (key, value) {\n                    return key === \"\" ? value : decodeURIComponent(value);\n                }\n        ) : {};\n\n        isValid = qp.state === sentState;\n\n        if ((\n          oauth2.auth.schema.get(\"flow\") === \"accessCode\" ||\n          oauth2.auth.schema.get(\"flow\") === \"authorizationCode\" ||\n          oauth2.auth.schema.get(\"flow\") === \"authorization_code\"\n        ) && !oauth2.auth.code) {\n            if (!isValid) {\n                oauth2.errCb({\n                    authId: oauth2.auth.name,\n                    source: \"auth\",\n                    level: \"warning\",\n                    message: \"Authorization may be unsafe, passed state was changed in server. The passed state wasn't returned from auth server.\"\n                });\n            }\n\n            if (qp.code) {\n                delete oauth2.state;\n                oauth2.auth.code = qp.code;\n                oauth2.callback({auth: oauth2.auth, redirectUrl: redirectUrl});\n            } else {\n                let oauthErrorMsg;\n                if (qp.error) {\n                    oauthErrorMsg = \"[\"+qp.error+\"]: \" +\n                        (qp.error_description ? qp.error_description+ \". \" : \"no accessCode received from the server. \") +\n                        (qp.error_uri ? \"More info: \"+qp.error_uri : \"\");\n                }\n\n                oauth2.errCb({\n                    authId: oauth2.auth.name,\n                    source: \"auth\",\n                    level: \"error\",\n                    message: oauthErrorMsg || \"[Authorization failed]: no accessCode received from the server.\"\n                });\n            }\n        } else {\n            oauth2.callback({auth: oauth2.auth, token: qp, isValid: isValid, redirectUrl: redirectUrl});\n        }\n        window.close();\n    }\n\n    if (document.readyState !== 'loading') {\n        run();\n    } else {\n        document.addEventListener('DOMContentLoaded', function () {\n            run();\n        });\n    }\n</script>\n</body>\n</html>\n"
+      tags:
+        - Endpoints
+      security: []
+  /api/register:
+    post:
+      summary: 'Register a new user.'
+      operationId: registerANewUser
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: or
+                  nullable: false
+                prenom:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: oadqctmnmkcqfwzztvmdvypnu
+                  nullable: false
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 255 characters.'
+                  example: roel.spencer@example.com
+                  nullable: false
+                num_phone:
+                  type: string
+                  description: 'Must not be greater than 15 characters.'
+                  example: chizamgawifhdd
+                  nullable: false
+                password:
+                  type: string
+                  description: 'Must be at least 6 characters.'
+                  example: ':Lu+WlZK"wXlIz'
+                  nullable: false
+                type_user_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the type_users table.'
+                  example: libero
+                  nullable: false
+              required:
+                - nom
+                - prenom
+                - email
+                - num_phone
+                - password
+                - type_user_id
+      security: []
+  /api/login:
+    post:
+      summary: 'Login user and return token.'
+      operationId: loginUserAndReturnToken
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: rozella.bayer@example.net
+                  nullable: false
+                password:
+                  type: string
+                  description: ''
+                  example: 'V+;ESANE[b"rZ'
+                  nullable: false
+              required:
+                - email
+                - password
+      security: []
+  /api/forgot-password:
+    post:
+      summary: 'Forgot password - send reset token.'
+      operationId: forgotPasswordSendResetToken
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: reese85@example.org
+                  nullable: false
+              required:
+                - email
+      security: []
+  /api/reset-password:
+    post:
+      summary: 'Reset password.'
+      operationId: resetPassword
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: steve93@example.net
+                  nullable: false
+                token:
+                  type: string
+                  description: ''
+                  example: reprehenderit
+                  nullable: false
+                password:
+                  type: string
+                  description: 'Must be at least 6 characters.'
+                  example: 'X}8Bz%^*yLF"rUj'
+                  nullable: false
+              required:
+                - email
+                - token
+                - password
+      security: []
+  /api/otp-verify:
+    post:
+      summary: 'Verify OTP.'
+      operationId: verifyOTP
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: kenna.leuschke@example.com
+                  nullable: false
+                otp_code:
+                  type: integer
+                  description: ''
+                  example: 11
+                  nullable: false
+              required:
+                - email
+                - otp_code
+      security: []
+  /api/logout:
+    post:
+      summary: 'Logout user and revoke token.'
+      operationId: logoutUserAndRevokeToken
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/user/profile:
+    get:
+      summary: "Récupérer le profil de l'utilisateur authentifié."
+      operationId: rcuprerLeProfilDeLutilisateurAuthentifi
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/user/update:
+    put:
+      summary: "Mettre à jour le profil de l'utilisateur authentifié."
+      operationId: mettreJourLeProfilDeLutilisateurAuthentifi
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: pxprrwcjgksydxidf
+                  nullable: false
+                prenom:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: rckxafdtuffjgltwlzu
+                  nullable: false
+                email:
+                  type: string
+                  description: ''
+                  example: null
+                  nullable: false
+                num_phone:
+                  type: string
+                  description: ''
+                  example: null
+                  nullable: false
+      security: []
+  /api/user/change-password:
+    post:
+      summary: "Modifier le mot de passe de l'utilisateur."
+      operationId: modifierLeMotDePasseDeLutilisateur
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                  description: ''
+                  example: omnis
+                  nullable: false
+                new_password:
+                  type: string
+                  description: 'Must be at least 6 characters.'
+                  example: iojnuhcixkncszv
+                  nullable: false
+              required:
+                - current_password
+                - new_password
+      security: []
+  /api/user/delete:
+    delete:
+      summary: "Supprimer un utilisateur (accessible uniquement pour l'utilisateur lui-même)."
+      operationId: supprimerUnUtilisateuraccessibleUniquementPourLutilisateurLuiMme
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/users:
+    get:
+      summary: 'Lister les utilisateurs par type de profil.'
+      operationId: listerLesUtilisateursParTypeDeProfil
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type_user_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the type_users table.'
+                  example: ex
+                  nullable: false
+              required:
+                - type_user_id
+      security: []
+  '/api/users/{id}':
+    get:
+      summary: 'Afficher un utilisateur spécifique.'
+      operationId: afficherUnUtilisateurSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the user.'
+        example: unde
+        required: true
+        schema:
+          type: string
+  /api/messages/send:
+    post:
+      summary: 'Envoyer un message dans une conversation.'
+      operationId: envoyerUnMessageDansUneConversation
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                conversation_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the conversations table.'
+                  example: vel
+                  nullable: false
+                content:
+                  type: string
+                  description: 'This field is required when <code>file</code> is not present.'
+                  example: aliquam
+                  nullable: false
+                file:
+                  type: string
+                  format: binary
+                  description: 'Must be a file. Must not be greater than 2048 kilobytes.'
+                  nullable: true
+              required:
+                - conversation_id
+      security: []
+  '/api/messages/conversation/{conversationId}':
+    get:
+      summary: "Récupérer les messages d'une conversation."
+      operationId: rcuprerLesMessagesDuneConversation
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: conversationId
+        description: ''
+        example: perferendis
+        required: true
+        schema:
+          type: string
+  '/api/messages/{messageId}':
+    delete:
+      summary: 'Supprimer un message (Soft delete).'
+      operationId: supprimerUnMessageSoftDelete
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: messageId
+        description: ''
+        example: illo
+        required: true
+        schema:
+          type: string
+  '/api/messages/{messageId}/read':
+    post:
+      summary: 'Marquer un message comme lu.'
+      operationId: marquerUnMessageCommeLu
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: messageId
+        description: ''
+        example: ut
+        required: true
+        schema:
+          type: string
+  /api/messages/unread:
+    get:
+      summary: "Récupérer les messages non lus de l'utilisateur."
+      operationId: rcuprerLesMessagesNonLusDeLutilisateur
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/ventes:
+    get:
+      summary: 'Lister toutes les ventes.'
+      operationId: listerToutesLesVentes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Créer une nouvelle vente.'
+      operationId: crerUneNouvelleVente
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2025-02-08T13:17:19'
+                  nullable: false
+                montant:
+                  type: number
+                  description: 'Must be at least 0.'
+                  example: 80
+                  nullable: false
+                point_of_sale_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the point_of_sales table.'
+                  example: et
+                  nullable: false
+                client_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the users table.'
+                  example: null
+                  nullable: true
+                journal_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the journals table.'
+                  example: null
+                  nullable: true
+                nbre:
+                  type: integer
+                  description: 'Must be at least 1.'
+                  example: 55
+                  nullable: false
+                is_paid:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: false
+              required:
+                - date
+                - montant
+                - point_of_sale_id
+                - nbre
+                - is_paid
+      security: []
+  '/api/ventes/{id}':
+    get:
+      summary: 'Récupérer une vente spécifique.'
+      operationId: rcuprerUneVenteSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Mettre à jour une vente.'
+      operationId: mettreJourUneVente
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2025-02-08T13:17:19'
+                  nullable: false
+                montant:
+                  type: number
+                  description: 'Must be at least 0.'
+                  example: 3
+                  nullable: false
+                point_of_sale_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the point_of_sales table.'
+                  example: null
+                  nullable: false
+                client_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the users table.'
+                  example: null
+                  nullable: true
+                journal_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the journals table.'
+                  example: null
+                  nullable: true
+                nbre:
+                  type: integer
+                  description: 'Must be at least 1.'
+                  example: 29
+                  nullable: false
+                is_paid:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Supprimer une vente (Soft Delete).'
+      operationId: supprimerUneVenteSoftDelete
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the vente.'
+        example: vel
+        required: true
+        schema:
+          type: string
+  '/api/ventes/seller/{sellerId}':
+    get:
+      summary: 'Récupérer les ventes d’un vendeur spécifique.'
+      operationId: rcuprerLesVentesDunVendeurSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: sellerId
+        description: ''
+        example: dolor
+        required: true
+        schema:
+          type: string
+  '/api/ventes/point-of-sale/{pointOfSaleId}':
+    get:
+      summary: 'Récupérer les ventes d’un point de vente spécifique.'
+      operationId: rcuprerLesVentesDunPointDeVenteSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: pointOfSaleId
+        description: ''
+        example: labore
+        required: true
+        schema:
+          type: string
+  /api/ventes/unpaid:
+    get:
+      summary: 'Récupérer les ventes non payées.'
+      operationId: rcuprerLesVentesNonPayes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/point-of-sales:
+    get:
+      summary: 'Lister tous les points de vente.'
+      operationId: listerTousLesPointsDeVente
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Créer un nouveau point de vente.'
+      operationId: crerUnNouveauPointDeVente
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: tynq
+                  nullable: false
+                address:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: daldasupibinusxlkcjtpv
+                  nullable: true
+                city:
+                  type: string
+                  description: 'Must not be greater than 100 characters.'
+                  example: shwssoi
+                  nullable: true
+                latitude:
+                  type: number
+                  description: ''
+                  example: 4799.1806207
+                  nullable: true
+                longitude:
+                  type: number
+                  description: ''
+                  example: 35873.316592
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: false
+              required:
+                - name
+                - is_active
+      security: []
+  '/api/point-of-sales/{id}':
+    get:
+      summary: 'Récupérer un point de vente spécifique.'
+      operationId: rcuprerUnPointDeVenteSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Mettre à jour un point de vente.'
+      operationId: mettreJourUnPointDeVente
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: null
+                  nullable: false
+                address:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: jgnnu
+                  nullable: true
+                city:
+                  type: string
+                  description: 'Must not be greater than 100 characters.'
+                  example: ummrslwgtauwunudcukkr
+                  nullable: true
+                latitude:
+                  type: number
+                  description: ''
+                  example: 6434564.83
+                  nullable: true
+                longitude:
+                  type: number
+                  description: ''
+                  example: 916685406.114
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Supprimer un point de vente (Soft Delete).'
+      operationId: supprimerUnPointDeVenteSoftDelete
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the point of sale.'
+        example: cumque
+        required: true
+        schema:
+          type: string
+  /api/point-of-sales/active:
+    get:
+      summary: 'Lister les points de vente actifs.'
+      operationId: listerLesPointsDeVenteActifs
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  '/api/point-of-sales/{id}/users':
+    get:
+      summary: 'Récupérer les utilisateurs d’un point de vente.'
+      operationId: rcuprerLesUtilisateursDunPointDeVente
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the point of sale.'
+        example: consectetur
+        required: true
+        schema:
+          type: string
+  /api/notifications:
+    get:
+      summary: "Récupérer toutes les notifications de l'utilisateur authentifié."
+      operationId: rcuprerToutesLesNotificationsDeLutilisateurAuthentifi
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Créer une nouvelle notification pour un utilisateur.'
+      operationId: crerUneNouvelleNotificationPourUnUtilisateur
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the users table.'
+                  example: in
+                  nullable: false
+                title:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: qziv
+                  nullable: false
+                content:
+                  type: string
+                  description: ''
+                  example: quo
+                  nullable: false
+              required:
+                - user_id
+                - title
+                - content
+      security: []
+  '/api/notifications/{id}':
+    get:
+      summary: 'Récupérer une notification spécifique.'
+      operationId: rcuprerUneNotificationSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    delete:
+      summary: 'Supprimer une notification.'
+      operationId: supprimerUneNotification
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the notification.'
+        example: officiis
+        required: true
+        schema:
+          type: string
+  '/api/notifications/{id}/read':
+    post:
+      summary: 'Marquer une notification comme lue.'
+      operationId: marquerUneNotificationCommeLue
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the notification.'
+        example: unde
+        required: true
+        schema:
+          type: string
+  /api/notifications/unread:
+    get:
+      summary: 'Récupérer uniquement les notifications non lues.'
+      operationId: rcuprerUniquementLesNotificationsNonLues
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/journals:
+    get:
+      summary: 'Lister tous les journaux.'
+      operationId: listerTousLesJournaux
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Créer un nouveau journal.'
+      operationId: crerUnNouveauJournal
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: dmuvfk
+                  nullable: false
+                price:
+                  type: number
+                  description: 'Must be at least 0.'
+                  example: 48
+                  nullable: false
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: false
+              required:
+                - title
+                - price
+                - is_active
+      security: []
+  '/api/journals/{id}':
+    get:
+      summary: 'Récupérer un journal spécifique.'
+      operationId: rcuprerUnJournalSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Mettre à jour un journal.'
+      operationId: mettreJourUnJournal
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ''
+                  example: null
+                  nullable: false
+                price:
+                  type: number
+                  description: 'Must be at least 0.'
+                  example: 52
+                  nullable: false
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Supprimer un journal (Soft Delete).'
+      operationId: supprimerUnJournalSoftDelete
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the journal.'
+        example: sit
+        required: true
+        schema:
+          type: string
+  /api/journals/active:
+    get:
+      summary: 'Lister les journaux actifs.'
+      operationId: listerLesJournauxActifs
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/type-users:
+    get:
+      summary: 'Lister tous les types d’utilisateurs.'
+      operationId: listerTousLesTypesDutilisateurs
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Créer un nouveau type d’utilisateur.'
+      operationId: crerUnNouveauTypeDutilisateur
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: af
+                  nullable: false
+              required:
+                - name
+      security: []
+  '/api/type-users/{id}':
+    get:
+      summary: 'Récupérer un type d’utilisateur spécifique.'
+      operationId: rcuprerUnTypeDutilisateurSpcifique
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Mettre à jour un type d’utilisateur.'
+      operationId: mettreJourUnTypeDutilisateur
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: null
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Supprimer un type d’utilisateur (Soft Delete).'
+      operationId: supprimerUnTypeDutilisateurSoftDelete
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the type user.'
+        example: excepturi
+        required: true
+        schema:
+          type: string
+tags:
+  -
+    name: Endpoints
+    description: ''
