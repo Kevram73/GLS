@@ -14,6 +14,7 @@ class TypeUsersTableSeeder extends Seeder
             ['name' => 'Commercial'],
             ['name' => 'Client'],
             ['name' => 'Manager'],
+            
         ]);
     }
 }
