@@ -55,26 +55,41 @@ class AuthController extends Controller
     /**
      * Login user and return token.
      */
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+    use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid login details'], 401);
-        }
+public function login(Request $request)
+{
+    // Validation des données
+    $request->validate([
+        'phone' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Login successful',
-            'token' => $token,
-            'user' => $user,
-        ]);
+    // Vérification des identifiants (remplace `email` par `num_phone`)
+    if (!Auth::attempt(['num_phone' => $request->phone, 'password' => $request->password])) {
+        return response()->json(['message' => 'Numéro de téléphone ou mot de passe incorrect'], 401);
     }
+
+    // Récupérer l'utilisateur authentifié
+    $user = Auth::user();
+
+    // Vérifier si l'utilisateur est actif (optionnel)
+    if (isset($user->actif) && !$user->actif) {
+        return response()->json(['message' => 'Compte désactivé. Contactez un administrateur.'], 403);
+    }
+
+    // Générer un token API avec Laravel Sanctum
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    // Retourner la réponse JSON
+    return response()->json([
+        'message' => 'Connexion réussie',
+        'token' => $token,
+        'user' => $user,
+    ]);
+}
+
 
     /**
      * Logout user and revoke token.
