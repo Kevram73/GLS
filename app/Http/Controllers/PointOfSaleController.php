@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PosResource;
 use App\Models\PointOfSale;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 
 class PointOfSaleController extends Controller
 {
@@ -15,8 +16,8 @@ class PointOfSaleController extends Controller
      */
     public function index()
     {
-        $points = PointOfSale::latest()->paginate(10);
-        return response()->json($points);
+        $points = PointOfSale::with('manager')->get();
+        return response()->json(PosResource::collection($points));
     }
 
     /**
@@ -31,6 +32,7 @@ class PointOfSaleController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'is_active' => 'required|boolean',
+            'manager_id' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -38,8 +40,10 @@ class PointOfSaleController extends Controller
         }
 
         $pointOfSale = PointOfSale::create($request->all());
-
-        return response()->json(['message' => 'Point de vente créé avec succès', 'point_of_sale' => $pointOfSale], 201);
+        $new_user = User::find($request->manager_id);
+        $new_user->point_of_sale_id = $pointOfSale->id;
+        $new_user->save();
+        return response()->json(new PosResource($pointOfSale), 201);
     }
 
     /**
@@ -47,8 +51,8 @@ class PointOfSaleController extends Controller
      */
     public function show($id)
     {
-        $pointOfSale = PointOfSale::findOrFail($id);
-        return response()->json($pointOfSale);
+        $pointOfSale = PointOfSale::with('manager')->findOrFail($id);
+        return response()->json(new PosResource($pointOfSale));
     }
 
     /**
@@ -58,6 +62,7 @@ class PointOfSaleController extends Controller
     {
         $pointOfSale = PointOfSale::findOrFail($id);
 
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255|unique:point_of_sales,name,' . $id,
             'address' => 'nullable|string|max:255',
@@ -65,15 +70,23 @@ class PointOfSaleController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'is_active' => 'sometimes|boolean',
+            'manager_id' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+        $previous_user = User::find($pointOfSale->manager_id);
+        $previous_user->point_of_sale_id = null;
+        $previous_user->save();
+
+        $new_user = User::find($request->manager_id);
+        $new_user->point_of_sale_id = $id;
+        $new_user->save();
 
         $pointOfSale->update($request->all());
 
-        return response()->json(['message' => 'Point de vente mis à jour avec succès', 'point_of_sale' => $pointOfSale]);
+        return response()->json(new PosResource($pointOfSale));
     }
 
     /**
@@ -92,16 +105,56 @@ class PointOfSaleController extends Controller
      */
     public function activePoints()
     {
-        $points = PointOfSale::where('is_active', true)->get();
-        return response()->json($points);
+        $points = PointOfSale::where('is_active', true)->with('manager')->get();
+        return response()->json(PosResource::collection($points));
     }
 
     /**
      * Récupérer les utilisateurs d’un point de vente.
      */
-    public function getUsers($pointOfSaleId)
+    public function getUsers(Request $request)
+{
+
+    //$assignedManagers = PointOfSale::whereNotNull('manager_id')->pluck('manager_id')->toArray();
+    $currentUserId = Auth::id();
+
+    if (!$currentUserId) {
+        return response()->json(['message' => 'Utilisateur non authentifié'], 401);
+    }
+
+    $users = User::whereNotIn('id', [1, 6, 11])
+                 ->where('id', '!=', $currentUserId)
+                 ->get();
+
+    if ($users->isEmpty()) {
+        return response()->json(['message' => 'Aucun utilisateur disponible'], 404);
+    }
+
+    return UserResource::collection($users);
+}
+
+
+    /**
+     * Activer un point de vente.
+     */
+    public function activate_point($id)
     {
-        $users = User::where('point_of_sale_id', $pointOfSaleId)->get();
-        return response()->json($users);
+        $pointOfSale = PointOfSale::findOrFail($id);
+        $pointOfSale->is_active = true;
+        $pointOfSale->save();
+
+        return response()->json(new PosResource($pointOfSale));
+    }
+
+    /**
+     * Désactiver un point de vente.
+     */
+    public function deactivate_point($id)
+    {
+        $pointOfSale = PointOfSale::findOrFail($id);
+        $pointOfSale->is_active = false;
+        $pointOfSale->save();
+
+        return response()->json(new PosResource($pointOfSale));
     }
 }

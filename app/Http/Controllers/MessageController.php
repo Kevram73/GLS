@@ -8,38 +8,42 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use App\Events\MessageSent;
+use App\Events\MessageRead;
 
 class MessageController extends Controller
 {
     /**
-     * Envoyer un message dans une conversation.
+     * Envoyer un message dans une conversation avec WebSockets.
      */
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'conversation_id' => 'required|exists:conversations,id',
             'content' => 'required_without:file|string',
-            'file' => 'nullable|file|max:2048', // Fichier optionnel (2MB max)
+            'file' => 'nullable|file|max:2048',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Upload fichier s'il existe
-        $filePath = $request->hasFile('file') ? $request->file('file')->store('messages') : null;
+        $conversation = Conversation::findOrFail($request->conversation_id);
+        if (!in_array(Auth::id(), json_decode($conversation->participants))) {
+            return response()->json(['message' => 'Accès interdit'], 403);
+        }
 
-        // Création du message
+        $filePath = $request->hasFile('file') ? $request->file('file')->store('messages', 'public') : null;
+
         $message = Message::create([
             'conversation_id' => $request->conversation_id,
             'sender_id' => Auth::id(),
             'content' => $request->content,
-            'file' => $filePath,
+            'file' => $filePath ? Storage::url($filePath) : null,
             'sent_at' => now(),
         ]);
 
-        // Ajout du statut pour les destinataires
-        $conversation = Conversation::find($request->conversation_id);
         foreach (json_decode($conversation->participants) as $recipientId) {
             if ($recipientId != Auth::id()) {
                 MessageStatus::create([
@@ -50,6 +54,8 @@ class MessageController extends Controller
             }
         }
 
+        broadcast(new MessageSent($message))->toOthers();
+
         return response()->json(['message' => 'Message envoyé avec succès', 'data' => $message]);
     }
 
@@ -59,26 +65,24 @@ class MessageController extends Controller
     public function getMessages($conversationId)
     {
         $conversation = Conversation::findOrFail($conversationId);
-
-        // Vérifier si l'utilisateur appartient à la conversation
         if (!in_array(Auth::id(), json_decode($conversation->participants))) {
-            return response()->json(['message' => 'Accès interdit à cette conversation'], 403);
+            return response()->json(['message' => 'Accès interdit'], 403);
         }
 
-        $messages = Message::where('conversation_id', $conversationId)->orderBy('sent_at', 'asc')->get();
+        $messages = Message::where('conversation_id', $conversationId)
+                            ->latest()
+                            ->with('sender')
+                            ->get();
 
         return response()->json(['messages' => $messages]);
     }
 
     /**
-     * Supprimer un message (Soft delete).
+     * Supprimer un message.
      */
     public function deleteMessage($messageId)
     {
-        $message = Message::where('id', $messageId)
-                          ->where('sender_id', Auth::id()) // Vérifier que l'utilisateur est l'expéditeur
-                          ->firstOrFail();
-
+        $message = Message::where('id', $messageId)->where('sender_id', Auth::id())->firstOrFail();
         $message->delete();
 
         return response()->json(['message' => 'Message supprimé avec succès']);
@@ -95,11 +99,13 @@ class MessageController extends Controller
 
         $status->update(['is_read' => true, 'read_at' => now()]);
 
+        broadcast(new MessageRead($messageId, Auth::id()));
+
         return response()->json(['message' => 'Message marqué comme lu']);
     }
 
     /**
-     * Récupérer les messages non lus de l'utilisateur.
+     * Récupérer les messages non lus.
      */
     public function getUnreadMessages()
     {
@@ -109,5 +115,17 @@ class MessageController extends Controller
                                        ->get();
 
         return response()->json(['unread_messages' => $unreadMessages]);
+    }
+
+    /**
+     * Récupérer la liste des utilisateurs auxquels l'utilisateur connecté a écrit.
+     */
+    public function getUsersContacted()
+    {
+        $users = Message::where('sender_id', Auth::id())
+                        ->distinct()
+                        ->pluck('recipient_id');
+
+        return response()->json(['contacted_users' => $users]);
     }
 }

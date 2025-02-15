@@ -41,6 +41,7 @@ class AuthController extends Controller
             'type_user_id' => $request->type_user_id,
             'otp_code' => rand(100000, 999999),
             'otp_expires_at' => Carbon::now()->addMinutes(10),
+            'actif' => false
         ]);
 
         // Send OTP to user
@@ -52,11 +53,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Login user and return token.
-     */
-    use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 public function login(Request $request)
 {
@@ -125,13 +121,13 @@ public function login(Request $request)
     public function otpVerify(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email',
+            'phone' => 'required|string',
             'otp_code' => 'required|integer',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('num_phone', $request->phone)->first();
 
-        if (!$user || $user->otp_code !== (int) $request->otp_code) {
+        if (!$user || $user->otp_code != $request->otp_code) {
             return response()->json(['message' => 'Invalid OTP'], 400);
         }
 
@@ -141,6 +137,7 @@ public function login(Request $request)
 
         $user->otp_code = null;
         $user->otp_expires_at = null;
+        $user->actif = true;
         $user->save();
 
         return response()->json(['message' => 'OTP verified successfully']);
@@ -151,9 +148,9 @@ public function login(Request $request)
      */
     public function forgotPassword(Request $request)
     {
-        $request->validate(['email' => 'required|string|email']);
+        $request->validate(['phone' => 'required|string']);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('num_phone', $request->phone)->first();
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
@@ -163,7 +160,6 @@ public function login(Request $request)
         $user->password_reset_expires_at = Carbon::now()->addMinutes(30);
         $user->save();
 
-        // Simulate email sending
         Mail::raw("Your password reset token is: $token", function ($message) use ($user) {
             $message->to($user->email)->subject('Password Reset Token');
         });
@@ -177,7 +173,7 @@ public function login(Request $request)
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email',
+            'phone' => 'required|string',
             'token' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ]);

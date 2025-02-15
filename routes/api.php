@@ -10,6 +10,7 @@ use App\Http\Controllers\PointOfSaleController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\TypeUserController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,11 +30,15 @@ Route::post('reset-password', [AuthController::class, 'resetPassword']);
 Route::post('otp-verify', [AuthController::class, 'otpVerify']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('dashboard', [HomeController::class, 'dashboard']);
+    Route::post('change-user-image', [HomeController::class, 'change_user_image']);
+    Route::post('change-password', [HomeController::class, 'change_password']);
+
+
     Route::post('logout', [AuthController::class, 'logout']);
 
     Route::get('user/profile', [UserController::class, 'profile']);
     Route::put('user/update', [UserController::class, 'update']);
-    Route::post('user/change-password', [UserController::class, 'changePassword']);
     Route::delete('user/delete', [UserController::class, 'destroy']);
 
     // Liste des utilisateurs par type
@@ -62,8 +67,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('point-of-sales/{id}', [PointOfSaleController::class, 'update']);
     Route::delete('point-of-sales/{id}', [PointOfSaleController::class, 'destroy']);
 
+
     Route::get('point-of-sales/active', [PointOfSaleController::class, 'activePoints']);
-    Route::get('point-of-sales/{id}/users', [PointOfSaleController::class, 'getUsers']);
+    Route::get('point-of-sales/users', [PointOfSaleController::class, 'getUsers']);
+    Route::put('point-of-sales/{id}/activate', [PointOfSaleController::class, 'activate_point']);
+    Route::put('point-of-sales/{id}/deactivate', [PointOfSaleController::class, 'deactivate_point']);
+
 
     Route::get('notifications', [NotificationController::class, 'index']);
     Route::post('notifications', [NotificationController::class, 'store']);
@@ -85,4 +94,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('type-users/{id}', [TypeUserController::class, 'show']);
     Route::put('type-users/{id}', [TypeUserController::class, 'update']);
     Route::delete('type-users/{id}', [TypeUserController::class, 'destroy']);
+
+
 });

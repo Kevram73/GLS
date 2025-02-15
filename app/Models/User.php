@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,11 +12,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'nom',
         'prenom',
@@ -32,26 +26,14 @@ class User extends Authenticatable
         'otp_expires_at',
         'password_updated_at',
         'two_factor_enabled',
-        'point_of_sale_id',
+        'point_of_sale_id', // Un utilisateur peut avoir un point de vente (nullable)
         'is_commercial',
-        'stock_journal'
+        'stock_journal',
+        'image'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
@@ -60,55 +42,32 @@ class User extends Authenticatable
         'password_updated_at' => 'datetime',
         'two_factor_enabled' => 'boolean',
         'is_commercial' => 'boolean',
+        'actif' => 'boolean',
     ];
 
     protected $dates = ['deleted_at'];
 
     /**
-     * Get the point of sale associated with the user.
+     * Relation : Un utilisateur peut avoir **au plus un** point de vente
      */
     public function pointOfSale()
     {
-        return $this->belongsTo(PointOfSale::class);
+        return $this->hasOne(PointOfSale::class, 'manager_id');
     }
 
     /**
-     * Get the user type.
+     * Scope : récupérer les utilisateurs **sans** point de vente
      */
-    public function userType()
+    public function scopeWithoutPointOfSale($query)
     {
-        return $this->belongsTo(UserType::class, 'type_user_id');
+        return $query->whereNull('point_of_sale_id');
     }
 
     /**
-     * Get all notifications for the user.
+     * Scope : récupérer les utilisateurs actifs **sans POS**
      */
-    public function notifications()
+    public function scopeActiveWithoutPointOfSale($query)
     {
-        return $this->hasMany(Notification::class);
-    }
-
-    /**
-     * Get all messages sent by the user.
-     */
-    public function messages()
-    {
-        return $this->hasMany(Message::class, 'sender_id');
-    }
-
-    /**
-     * Get all message statuses for this user.
-     */
-    public function messageStatuses()
-    {
-        return $this->hasMany(MessageStatus::class, 'recipient_id');
-    }
-
-    /**
-     * Scope a query to only include active users.
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('actif', true);
+        return $query->whereNull('point_of_sale_id')->where('actif', true);
     }
 }

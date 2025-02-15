@@ -70,6 +70,10 @@ class UserController extends Controller
     public function changePassword(Request $request)
     {
         $user = Auth::user();
+        if($user == null)
+        {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
 
         $request->validate([
             'current_password' => 'required|string',
