@@ -28,6 +28,10 @@ class PointOfSale extends Model
         'longitude' => 'decimal:8',
     ];
 
+    public function users(){
+        return $this->hasMany(User::class);
+    }
+
     /**
      * Scope pour récupérer uniquement les points de vente actifs.
      */

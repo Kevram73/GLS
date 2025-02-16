@@ -14,7 +14,7 @@ class JournalController extends Controller
      */
     public function index()
     {
-        $journals = Journal::latest()->paginate(10);
+        $journals = Journal::all();
         return response()->json($journals);
     }
 

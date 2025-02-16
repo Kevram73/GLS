@@ -12,6 +12,13 @@ use App\Models\Vente;
 
 class HomeController extends Controller
 {
+
+
+    public function get_users(){
+        $users = User::where("type_user_id", 2)->where("point_of_sale_id", null)->get();
+        return response()->json(UserResource::collection($users));
+    }
+    
     public function dashboard()
     {
         $user = Auth::user();

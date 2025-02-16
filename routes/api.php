@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('dashboard', [HomeController::class, 'dashboard']);
     Route::post('change-user-image', [HomeController::class, 'change_user_image']);
     Route::post('change-password', [HomeController::class, 'change_password']);
+    Route::get('users/no-pos', [HomeController::class, 'get_users']);
 
 
     Route::post('logout', [AuthController::class, 'logout']);
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Liste des utilisateurs par type
     Route::get('users', [UserController::class, 'index']);
+    Route::post('users', [UserController::class, 'create']);
     Route::get('users/{id}', [UserController::class, 'show']);
 
     Route::post('messages/send', [MessageController::class, 'sendMessage']);
@@ -69,7 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('point-of-sales/active', [PointOfSaleController::class, 'activePoints']);
-    Route::get('point-of-sales/users', [PointOfSaleController::class, 'getUsers']);
     Route::put('point-of-sales/{id}/activate', [PointOfSaleController::class, 'activate_point']);
     Route::put('point-of-sales/{id}/deactivate', [PointOfSaleController::class, 'deactivate_point']);
 

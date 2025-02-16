@@ -14,7 +14,7 @@ class VenteController extends Controller
      */
     public function index()
     {
-        $ventes = Vente::latest()->paginate(10);
+        $ventes = Vente::all();
         return response()->json($ventes);
     }
 

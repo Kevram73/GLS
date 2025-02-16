@@ -41,6 +41,32 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function create(Request $request){
+        $validator = Validator::make($request->all(), [
+            'nom' => 'sometimes|string|max:255',
+            'prenom' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email',
+            'num_phone' => 'sometimes|string|max:15|unique:users,num_phone',
+            'type_user_id' => 'required|exists:type_users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = new User();
+        $user->nom = $request->nom;
+        $user->prenom = $request->prenom;
+        $user->email = $request->email;
+        $user->num_phone = $request->num_phone;
+        $user->type_user_id = $request->type_user_id;
+        $user->password = Hash::make('password');
+        $user->is_active = true;
+        $user->save();
+
+        return response()->json(['message' => 'Utilisateur créé avec succès', 'user' => $user]);
+    }
+
     /**
      * Mettre à jour le profil de l'utilisateur authentifié.
      */

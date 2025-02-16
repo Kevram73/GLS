@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PosResource;
+use App\Http\Resources\UserResource;
 use App\Models\PointOfSale;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,6 @@ class PointOfSaleController extends Controller
         $points = PointOfSale::with('manager')->get();
         return response()->json(PosResource::collection($points));
     }
-
     /**
      * Créer un nouveau point de vente.
      */
@@ -109,29 +109,7 @@ class PointOfSaleController extends Controller
         return response()->json(PosResource::collection($points));
     }
 
-    /**
-     * Récupérer les utilisateurs d’un point de vente.
-     */
-    public function getUsers(Request $request)
-{
 
-    //$assignedManagers = PointOfSale::whereNotNull('manager_id')->pluck('manager_id')->toArray();
-    $currentUserId = Auth::id();
-
-    if (!$currentUserId) {
-        return response()->json(['message' => 'Utilisateur non authentifié'], 401);
-    }
-
-    $users = User::whereNotIn('id', [1, 6, 11])
-                 ->where('id', '!=', $currentUserId)
-                 ->get();
-
-    if ($users->isEmpty()) {
-        return response()->json(['message' => 'Aucun utilisateur disponible'], 404);
-    }
-
-    return UserResource::collection($users);
-}
 
 
     /**
