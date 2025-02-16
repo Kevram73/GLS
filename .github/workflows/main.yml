@@ -1,71 +1,32 @@
-name: Deploy GLS to VPS
+# This is a basic workflow to help you get started with Actions
 
+name: Deploy on production mode (api.galorelotoservices.com)
+
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 
 jobs:
-  deploy:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
 
-    - name: Install sshpass
-      run: sudo apt-get install -y sshpass
-
-    - name: Upload Files via SCP
-      env:
-        VPS_IP: 15.235.146.244
-        VPS_USER: ubuntu
-        SSH_PASSWORD: "Alkashi13!!!%"
-      run: |
-        echo ">>> Starting SCP upload to $VPS_IP"
-
-        sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r ./* $VPS_USER@$VPS_IP:/var/www/html/gls/
-
-    - name: Deploy Laravel Application
-      env:
-        VPS_IP: 15.235.146.244
-        VPS_USER: ubuntu
-        SSH_PASSWORD: "Alkashi13!!!%"
-      run: |
-        echo ">>> Deploying Laravel application on $VPS_IP"
-
-        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP <<'EOF'
-          set -e
-
-          echo ">>> Navigating to project directory"
-          cd /var/www/html/gls/
-
-          echo ">>> Pulling latest changes from Git"
-          git pull origin main
-
-          echo ">>> Installing PHP dependencies"
-          composer install --no-dev --optimize-autoloader
-
-          echo ">>> Setting file permissions"
-          chmod -R 775 storage bootstrap/cache
-          chown -R www-data:www-data /var/www/html/gls/
-
-          echo ">>> Running database migrations"
-          php artisan migrate --force
-
-          echo ">>> Clearing and caching Laravel configurations"
-          php artisan cache:clear
-          php artisan config:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-
-          echo ">>> Restarting Laravel Queues (si utilisé)"
-          php artisan queue:restart || true
-
-          echo ">>> Restarting PHP-FPM and web server"
-          sudo systemctl restart php8.1-fpm || true  # Remplace par ta version PHP
-          sudo systemctl restart nginx || true       # Si Apache : sudo systemctl restart apache2
-
-          echo ">>> Deployment complete!"
-        EOF
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.3.2
+      with:
+        server: 89.117.169.104
+        username: u340024865.api.galorelotoservices.com
+        password: Alkashi13!!!%
