@@ -17,6 +17,13 @@ class AuthController extends Controller
     /**
      * Register a new user.
      */
+
+    public function index(){
+        $message = "Api works well";
+        return response()->json(['message' => $message]);
+    }
+
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
