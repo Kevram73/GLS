@@ -10,6 +10,7 @@ class Vente extends Model
 {
     use HasFactory, SoftDeletes;
 
+    
     protected $fillable = [
         "date",
         "montant",
