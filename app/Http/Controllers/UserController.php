@@ -23,16 +23,12 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $request->validate([
-            'type_user_id' => 'required|exists:type_users,id',
-        ]);
-
         $currentUser = Auth::user();
 
         if ($currentUser->type_user_id == 1) {
             $users = User::all();
         } else {
-            $users = User::where('type_user_id', '<', 2)->get();
+            $users = User::where('type_user_id', '<', $currentUser->type_user_id)->get();
         }
 
         return response()->json($users);
