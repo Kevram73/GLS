@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('journals/active', [JournalController::class, 'activeJournals']);
 
     Route::get('type-users', [TypeUserController::class, 'index']);
+    Route::get('type-users/others', [TypeUserController::class, 'get_other_types']);
     Route::post('type-users', [TypeUserController::class, 'store']);
     Route::get('type-users/{id}', [TypeUserController::class, 'show']);
     Route::put('type-users/{id}', [TypeUserController::class, 'update']);

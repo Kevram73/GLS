@@ -17,6 +17,13 @@ class TypeUserController extends Controller
         return response()->json($typeUsers);
     }
 
+    public function get_other_types()
+    {
+        $type_user = Auth::user()->type_user_id;
+        $typeUsers = TypeUser::where('id', '<', 1)->get();
+        return response()->json($typeUsers);
+    }
+
     /**
      * Créer un nouveau type d’utilisateur.
      */
