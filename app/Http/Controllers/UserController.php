@@ -27,7 +27,13 @@ class UserController extends Controller
             'type_user_id' => 'required|exists:type_users,id',
         ]);
 
-        $users = User::where('type_user_id', $request->type_user_id)->paginate(10);
+        $currentUser = Auth::user();
+
+        if ($currentUser->type_user_id == 1) {
+            $users = User::all();
+        } else {
+            $users = User::where('type_user_id', '<', 2)->get();
+        }
 
         return response()->json($users);
     }
@@ -125,5 +131,14 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(['message' => 'Compte supprimé avec succès']);
+    }
+
+    /**
+     * Afficher les utilisateurs par type_user_id.
+     */
+    public function getUsersByType($type_user_id)
+    {
+        $users = User::where('type_user_id', $type_user_id)->get();
+        return response()->json($users);
     }
 }
