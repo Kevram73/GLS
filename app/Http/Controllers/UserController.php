@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +32,7 @@ class UserController extends Controller
             $users = User::where('type_user_id', '<', $currentUser->type_user_id)->get();
         }
 
-        return response()->json($users);
+        return response()->json(UserResource::collection($users));
     }
 
     /**
