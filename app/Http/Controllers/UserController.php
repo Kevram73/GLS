@@ -63,7 +63,7 @@ class UserController extends Controller
         $user->num_phone = $request->num_phone;
         $user->type_user_id = $request->type_user_id;
         $user->password = Hash::make('password');
-        $user->is_active = true;
+        $user->actif = true;
         $user->save();
 
         return response()->json(['message' => 'Utilisateur créé avec succès', 'user' => $user]);
