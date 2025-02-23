@@ -14,14 +14,14 @@ class TypeUserController extends Controller
      */
     public function index()
     {
-        $typeUsers = TypeUser::latest()->paginate(10);
+        $typeUsers = TypeUser::all();
         return response()->json($typeUsers);
     }
 
     public function get_other_types()
     {
         $type_user = Auth::user()->type_user_id;
-        $typeUsers = TypeUser::where('id', '<', 1)->get();
+        $typeUsers = TypeUser::where('id', '<', $type_user)->get();
         return response()->json($typeUsers);
     }
 
