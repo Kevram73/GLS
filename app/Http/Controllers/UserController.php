@@ -41,7 +41,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-        return response()->json($user);
+        return response()->json(UserResource::collection($user));
     }
 
     public function create(Request $request){
@@ -136,6 +136,6 @@ class UserController extends Controller
     public function getUsersByType($type_user_id)
     {
         $users = User::where('type_user_id', $type_user_id)->get();
-        return response()->json($users);
+        return response()->json(UserResource::collection($users));
     }
 }
