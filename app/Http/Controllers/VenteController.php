@@ -110,7 +110,7 @@ class VenteController extends Controller
      */
     public function salesBySeller($sellerId)
     {
-        $ventes = Vente::where('seller_id', $sellerId)->paginate(10);
+        $ventes = Vente::where('seller_id', $sellerId)->get();
         return response()->json($ventes);
     }
 
@@ -119,7 +119,7 @@ class VenteController extends Controller
      */
     public function salesByPointOfSale($pointOfSaleId)
     {
-        $ventes = Vente::where('point_of_sale_id', $pointOfSaleId)->paginate(10);
+        $ventes = Vente::where('point_of_sale_id', $pointOfSaleId)->get();
         return response()->json($ventes);
     }
 
