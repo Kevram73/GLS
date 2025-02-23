@@ -20,8 +20,8 @@ class PosResource extends JsonResource
             'address' => $this->address,
             'city' => $this->city,
             'is_active' => $this->is_active,
-            'owner_id' => $this->manager_id,
-            'owner' => $this->manager->nom . " " . $this->manager->prenom,
+            'owner_id' => $this->manager_id ?? null,
+            'owner' => $this->manager ? (($this->manager->nom ?? '') . " " . ($this->manager->prenom ?? '')) : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
