@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/{id}', [UserController::class, 'show']);
     Route::get('/users/type/{type_user_id}', [UserController::class, 'getUsersByType']);
 
-    oute::post('messages/send', [MessageController::class, 'sendMessage']);
+    Route::post('messages/send', [MessageController::class, 'sendMessage']);
     Route::get('messages/conversation/{conversationId}', [MessageController::class, 'getMessages']);
     Route::delete('messages/{messageId}', [MessageController::class, 'deleteMessage']);
     Route::post('messages/{messageId}/read', [MessageController::class, 'markAsRead']);
