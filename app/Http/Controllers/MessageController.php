@@ -60,9 +60,9 @@ class MessageController extends Controller
     }
 
     /**
-     * Récupérer les messages d'une conversation.
+     * Récupérer les messages d'une conversation avec pagination.
      */
-    public function getMessages($conversationId)
+    public function getMessages($conversationId, Request $request)
     {
         $conversation = Conversation::findOrFail($conversationId);
         if (!in_array(Auth::id(), json_decode($conversation->participants))) {
@@ -70,19 +70,20 @@ class MessageController extends Controller
         }
 
         $messages = Message::where('conversation_id', $conversationId)
-                            ->latest()
                             ->with('sender')
-                            ->get();
+                            ->latest()
+                            ->paginate(20);
 
         return response()->json(['messages' => $messages]);
     }
 
     /**
-     * Supprimer un message.
+     * Supprimer un message et ses statuts associés.
      */
     public function deleteMessage($messageId)
     {
         $message = Message::where('id', $messageId)->where('sender_id', Auth::id())->firstOrFail();
+        MessageStatus::where('message_id', $message->id)->delete();
         $message->delete();
 
         return response()->json(['message' => 'Message supprimé avec succès']);
@@ -105,26 +106,30 @@ class MessageController extends Controller
     }
 
     /**
-     * Récupérer les messages non lus.
+     * Récupérer les messages non lus avec infos expéditeur.
      */
     public function getUnreadMessages()
     {
         $unreadMessages = MessageStatus::where('recipient_id', Auth::id())
                                        ->where('is_read', false)
-                                       ->with('message')
+                                       ->with('message.sender')
                                        ->get();
 
         return response()->json(['unread_messages' => $unreadMessages]);
     }
 
     /**
-     * Récupérer la liste des utilisateurs auxquels l'utilisateur connecté a écrit.
+     * Récupérer la liste des utilisateurs avec lesquels l'utilisateur connecté a interagi.
      */
     public function getUsersContacted()
     {
-        $users = Message::where('sender_id', Auth::id())
-                        ->distinct()
-                        ->pluck('recipient_id');
+        $userIds = Message::where('sender_id', Auth::id())
+                          ->orWhere('recipient_id', Auth::id())
+                          ->distinct()
+                          ->pluck('recipient_id', 'sender_id')
+                          ->values();
+
+        $users = User::whereIn('id', $userIds)->get();
 
         return response()->json(['contacted_users' => $users]);
     }
