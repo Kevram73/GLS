@@ -11,6 +11,8 @@ use App\Http\Controllers\JournalController;
 use App\Http\Controllers\TypeUserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PlainteController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -99,4 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('type-users/{id}', [TypeUserController::class, 'destroy']);
 
 
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('plaintes', PlainteController::class);
+    });
 });
