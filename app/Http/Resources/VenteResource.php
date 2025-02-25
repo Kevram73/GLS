@@ -24,9 +24,9 @@ class VenteResource extends JsonResource
             "nbre" => $this->nbre,
             "seller_id" => $this->seller_id,
             "is_paid" => $this->is_paid,
-            "point_of_sale" => PosResource::collection($this->pointOfSale),
-            "seller" => UserResource::collection($this->seller),
-            "client" => UserResource::collection($this->client)
+            "point_of_sale" => new PosResource($this->pointOfSale),
+            "seller" => new UserResource($this->seller),
+            "client" => new UserResource($this->client)
         ];
     }
 }
