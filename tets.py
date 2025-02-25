@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+from datetime import datetime
 
 # Configuration de base
 BASE_URL = "https://api.galorelotoservices.com/api"  # Modifiez cette URL selon votre configuration
@@ -11,14 +12,16 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-def send_message(receiver_id, content):
+def send_message(receiver_id, content, date_sent, time_sent):
     """
-    Envoie un message à l'utilisateur spécifié par receiver_id.
+    Envoie un message à l'utilisateur spécifié par receiver_id avec la date et l'heure précises.
     """
     url = f"{BASE_URL}/messages/send"
     data = {
         "receiver_id": receiver_id,
-        "content": content
+        "content": content,
+        "date_sent": date_sent,  # Format : YYYY-MM-DD
+        "time_sent": time_sent   # Format : HH:MM:SS
     }
     response = requests.post(url, json=data, headers=HEADERS)
     return response
@@ -32,18 +35,21 @@ def get_conversation(other_user_id):
     return response
 
 def main():
-    receiver_id = 6  # Identifiant de l'utilisateur destinataire (à modifier)
+    receiver_id = 6   # Identifiant de l'utilisateur destinataire (à modifier)
     nb_messages = 100  # Nombre de messages à envoyer
 
     print("Envoi de messages...")
     for i in range(nb_messages):
         content = f"Message numéro {i+1}"
-        response = send_message(receiver_id, content)
+        now_dt = datetime.now()
+        date_sent = now_dt.strftime('%Y-%m-%d')
+        time_sent = now_dt.strftime('%H:%M:%S')
+        response = send_message(receiver_id, content, date_sent, time_sent)
         if response.status_code == 200:
-            print(f"Envoyé: {content}")
+            print(f"Envoyé: {content} à {date_sent} {time_sent}")
         else:
             print(f"Erreur lors de l'envoi du message {i+1} :", response.status_code, response.text)
-        time.sleep(0.1)  # Petit délai entre les envois pour éviter la surcharge
+        time.sleep(0.1)  # Petit délai pour éviter de surcharger le serveur
 
     print("\nRécupération de la conversation...")
     conv_response = get_conversation(receiver_id)

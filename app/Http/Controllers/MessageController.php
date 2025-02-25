@@ -42,8 +42,7 @@ class MessageController extends Controller
             'content'     => $request->content,
             'file'        => $filePath ? Storage::url($filePath) : null,
             'date_sent'   => now()->toDateString(),
-            'time_sent'   => now()->toTimeString(),
-            'send_time'   => now(),
+            'time_sent'   => now()->toTimeString()
         ]);
 
         broadcast(new MessageSent($message))->toOthers();
@@ -74,7 +73,7 @@ class MessageController extends Controller
                             $query->where('sender_id', $otherUserId)
                                   ->where('receiver_id', $currentUserId);
                         })
-                        ->orderBy('send_time', 'desc')
+                        ->orderBy('time_sent', 'desc')
                         ->paginate(20);
 
         return response()->json(['messages' => $messages]);
