@@ -6,6 +6,7 @@ use App\Models\Vente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\VenteResource;
 
 class VenteController extends Controller
 {
@@ -20,7 +21,7 @@ class VenteController extends Controller
             $ventes = Vente::where('seller_id', Auth::user()->id)->get();
         }
 
-        return response()->json($ventes);
+        return response()->json(VenteResource::collection($ventes));
     }
 
     /**
@@ -53,7 +54,7 @@ class VenteController extends Controller
             'is_paid' => $request->is_paid,
         ]);
 
-        return response()->json(['message' => 'Vente enregistrée avec succès', 'vente' => $vente], 201);
+        return response()->json(['message' => 'Vente enregistrée avec succès', 'vente' => VenteResource::collection($vente)], 201);
     }
 
     /**
@@ -62,7 +63,7 @@ class VenteController extends Controller
     public function show($id)
     {
         $vente = Vente::findOrFail($id);
-        return response()->json($vente);
+        return response()->json(VenteResource::collection($vente));
     }
 
     /**
@@ -92,7 +93,7 @@ class VenteController extends Controller
 
         $vente->update($request->only(['date', 'montant', 'point_of_sale_id', 'client_id', 'journal_id', 'nbre', 'is_paid']));
 
-        return response()->json(['message' => 'Vente mise à jour avec succès', 'vente' => $vente]);
+        return response()->json(['message' => 'Vente mise à jour avec succès', 'vente' => VenteResource::collection($vente)]);
     }
 
     /**
@@ -125,7 +126,7 @@ class VenteController extends Controller
     public function salesByPointOfSale($pointOfSaleId)
     {
         $ventes = Vente::where('point_of_sale_id', $pointOfSaleId)->get();
-        return response()->json($ventes);
+        return response()->json(VenteResource::collection($ventes));
     }
 
     /**
@@ -134,6 +135,6 @@ class VenteController extends Controller
     public function unpaidSales()
     {
         $ventes = Vente::where('is_paid', false)->paginate(10);
-        return response()->json($ventes);
+        return response()->json(VenteResource::collection($ventes));
     }
 }
