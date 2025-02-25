@@ -14,7 +14,12 @@ class VenteController extends Controller
      */
     public function index()
     {
-        $ventes = Vente::all();
+        if(Auth::user()->id == 1){
+            $ventes = Vente::all();
+        } else {
+            $ventes = Vente::where('seller_id', Auth::user()->id)->get();
+        }
+
         return response()->json($ventes);
     }
 
