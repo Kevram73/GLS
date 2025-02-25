@@ -50,10 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/type/{type_user_id}', [UserController::class, 'getUsersByType']);
 
     Route::post('messages/send', [MessageController::class, 'sendMessage']);
-    Route::get('messages/conversation/{conversationId}', [MessageController::class, 'getMessages']);
+    Route::get('messages/conversation/{otherUserId}', [MessageController::class, 'getMessages']);
     Route::delete('messages/{messageId}', [MessageController::class, 'deleteMessage']);
-    Route::post('messages/{messageId}/read', [MessageController::class, 'markAsRead']);
-    Route::get('messages/unread', [MessageController::class, 'getUnreadMessages']);
     Route::get('messages/contacted-users', [MessageController::class, 'getUsersContacted']);
 
     Route::get('ventes', [VenteController::class, 'index']);
