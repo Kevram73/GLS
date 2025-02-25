@@ -45,8 +45,6 @@ class MessageController extends Controller
             'time_sent'   => now()->toTimeString()
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
-
         return response()->json([
             'message' => 'Message envoyé avec succès',
             'data'    => $message
