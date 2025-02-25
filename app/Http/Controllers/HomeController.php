@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Journal;
 use App\Models\Vente;
+use App\Models\Plainte;
 
 class HomeController extends Controller
 {
@@ -18,14 +19,16 @@ class HomeController extends Controller
         $users = User::where("type_user_id", 2)->where("point_of_sale_id", null)->get();
         return response()->json(UserResource::collection($users));
     }
-    
+
     public function dashboard()
     {
         $user = Auth::user();
         $totalClients = User::where('type_user_id', 3)->count();
         $totalClientsActifs = User::where('type_user_id', 3)->where('actif', true)->count();
+        $totalPlaintes = Plainte::where("register_id", $user->id)->count();
         $totalJournaux = Journal::count();
         $totalVentes = Vente::count();
+
         $stockRestant = User::sum('stock_journal');
         $commerciaux = User::where('type_user_id', 2)->select('id', 'nom', 'prenom', 'email')->get();
 
@@ -36,6 +39,7 @@ class HomeController extends Controller
             'total_journaux' => $totalJournaux,
             'total_ventes' => $totalVentes,
             'stock_restant' => $stockRestant,
+            'total_plaintes' => $totalPlaintes,
             'commerciaux' => $commerciaux,
         ]);
     }

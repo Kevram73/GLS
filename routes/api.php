@@ -99,9 +99,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('type-users/{id}', [TypeUserController::class, 'show']);
     Route::put('type-users/{id}', [TypeUserController::class, 'update']);
     Route::delete('type-users/{id}', [TypeUserController::class, 'destroy']);
-
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::apiResource('plaintes', PlainteController::class);
-    });
+    Route::apiResource('plaintes', PlainteController::class);
 });
