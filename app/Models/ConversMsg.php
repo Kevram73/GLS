@@ -9,6 +9,8 @@ class ConversMsg extends Model
 {
     use HasFactory;
 
+    protected $table = "conversmsg";
+
     protected $fillable = [
         "content",
         "file",
