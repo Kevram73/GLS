@@ -72,7 +72,7 @@ class MessageController extends Controller
                                   ->where('receiver_id', $currentUserId);
                         })
                         ->orderBy('time_sent', 'desc')
-                        ->paginate(20);
+                        ->get();
 
         return response()->json(['messages' => $messages]);
     }
