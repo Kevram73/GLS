@@ -31,6 +31,9 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('reset-password', [AuthController::class, 'resetPassword']);
 Route::post('otp-verify', [AuthController::class, 'otpVerify']);
+Route::post('add/client', [UserController::class, 'add_client']);
+    Route::get('check/email/{email}', [UserController::class, 'check_email_availability']);
+    Route::get('check/phone/{num_phone}', [UserController::class, 'check_phone_availability']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('dashboard', [HomeController::class, 'dashboard']);
@@ -100,7 +103,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('type-users/{id}', [TypeUserController::class, 'update']);
     Route::delete('type-users/{id}', [TypeUserController::class, 'destroy']);
     Route::apiResource('plaintes', PlainteController::class);
-    Route::post('add/client', [UserController::class, 'add_client']);
-    Route::get('check/email/{email}', [UserController::class, 'check_email_availability']);
-    Route::get('check/phone/{num_phone}', [UserController::class, 'check_phone_availability']);
+
 });
