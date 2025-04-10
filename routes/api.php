@@ -32,8 +32,9 @@ Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('reset-password', [AuthController::class, 'resetPassword']);
 Route::post('otp-verify', [AuthController::class, 'otpVerify']);
 Route::post('add/client', [UserController::class, 'add_client']);
-    Route::get('check/email/{email}', [UserController::class, 'check_email_availability']);
-    Route::get('check/phone/{num_phone}', [UserController::class, 'check_phone_availability']);
+Route::get('check/email/{email}', [UserController::class, 'check_email_availability']);
+Route::get('check/phone/{num_phone}', [UserController::class, 'check_phone_availability']);
+Route::get('/users/type/{type_user_id}', [UserController::class, 'getUsersByType']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('dashboard', [HomeController::class, 'dashboard']);
@@ -52,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('users', [UserController::class, 'index']);
     Route::post('users', [UserController::class, 'create']);
     Route::get('users/{id}', [UserController::class, 'show']);
-    Route::get('/users/type/{type_user_id}', [UserController::class, 'getUsersByType']);
+
 
     Route::post('messages/send', [MessageController::class, 'sendMessage']);
     Route::get('messages/conversation/{otherUserId}', [MessageController::class, 'getMessages']);
