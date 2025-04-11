@@ -11,6 +11,7 @@ use App\Models\Plainte;
 use App\Models\Notification;
 use App\Models\Journal;
 use App\Models\PointOfSale;
+use App\Http\Resources\VenteResource;
 
 class ClientSpaceController extends Controller
 {
@@ -32,7 +33,7 @@ class ClientSpaceController extends Controller
     public function buying_history()
     {
         $purchases = Vente::where('client_id', Auth::user()->id)->get();
-        return response()->json($purchases);
+        return response()->json(VenteResource::collection($ventes));
     }
 
     public function vente_details($id)
