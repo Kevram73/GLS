@@ -12,6 +12,8 @@ use App\Http\Controllers\TypeUserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PlainteController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientSpaceController;
 
 
 /*
@@ -105,4 +107,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('type-users/{id}', [TypeUserController::class, 'destroy']);
     Route::apiResource('plaintes', PlainteController::class);
 
+    Route::get('client/dashboard', [ClientSpaceController::class, 'dashboard_resume']);
+    Route::get('client/buying-history', [ClientSpaceController::class, 'buying_history']);
+    Route::get('client/vente-details/{id}', [ClientSpaceController::class, 'vente_details']);
+    Route::get('client/complaints', [ClientSpaceController::class, 'complaints']);
+    Route::get('client/notifications', [ClientSpaceController::class, 'my_notifications']);
+    Route::post('client/make-plainte', [ClientSpaceController::class, 'make_plainte']);
 });
